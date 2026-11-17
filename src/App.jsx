@@ -23,7 +23,7 @@ export default function App() {
   const isProfile = location.pathname.startsWith('/perfil')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  const goHome = () => navigate('/jugador')
+  const goHome = () => navigate('/')
 
   return (
     <div className="min-h-screen relative">
