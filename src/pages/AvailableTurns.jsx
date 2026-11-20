@@ -4,11 +4,14 @@ import { Search, MapPin, Clock, DollarSign, ChevronRight } from 'lucide-react'
 import { Card, CardBody } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { lastMinuteTurns, complexes, formatDateShort } from '../data/mockData'
+import { lastMinuteTurns, complexes, formatDateShort, currentUser } from '../data/mockData'
+import { useReservations } from '../hooks/useReservations'
+import { toast } from 'sonner'
 
 export default function AvailableTurns() {
   const [filter, setFilter] = useState('todos')
   const [openRequest, setOpenRequest] = useState(null)
+  const { requestReservation, getTurnAvailability } = useReservations()
 
   const filtered = lastMinuteTurns.filter(
     (t) => filter === 'todos' || t.sport === filter,
@@ -16,6 +19,12 @@ export default function AvailableTurns() {
 
   const requestTurn = (turn) => {
     setOpenRequest(turn)
+  }
+
+  const handleConfirmRequest = (turn) => {
+    requestReservation(turn, currentUser)
+    setOpenRequest(null)
+    toast.success('Solicitud de reserva enviada')
   }
 
   return (
@@ -132,10 +141,7 @@ export default function AvailableTurns() {
             </p>
             <div className="flex gap-3">
               <Button variant="outline" size="sm" onClick={() => setOpenRequest(null)}>Cancelar</Button>
-              <Button size="sm" onClick={() => {
-                setOpenRequest(null)
-                toast.success('Solicitud de reserva enviada')
-              }}>Confirmar solicitud</Button>
+              <Button size="sm" onClick={() => handleConfirmRequest(openRequest)}>Confirmar solicitud</Button>
             </div>
           </div>
         </div>
