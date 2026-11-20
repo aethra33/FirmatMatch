@@ -5,27 +5,17 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Avatar } from '../components/ui/Avatar'
 import { toast } from 'sonner'
-import { useReservations } from '../hooks/useReservations'
-import { useTurnGrid } from '../hooks/useTurnGrid'
+import { useOwnerDashboard } from '../hooks/useOwnerDashboard'
+import { useNotifications } from '../hooks/useNotifications'
 
 export default function OwnerDashboard() {
-  const { requests, acceptReservation, rejectReservation } = useReservations()
+  const notificationsHook = useNotifications()
   const { 
-    grid, COURTS, TIME_SLOTS, pendingCount, 
-    cellLabel, cellColor, cellTextColor, toggleCell 
-  } = useTurnGrid(requests)
-
-  const pendingRequests = requests.filter(r => r.status === 'pending')
-
-  const handleAccept = (req) => {
-    acceptReservation(req.id, 'cancha-1', req.time)
-    toast.success('Reserva aceptada')
-  }
-
-  const handleReject = (req) => {
-    rejectReservation(req.id)
-    toast.error('Reserva rechazada')
-  }
+    grid, COURTS, TIME_SLOTS, pendingRequests,
+    pendingCount, cellLabel, cellColor, cellTextColor, toggleCell,
+    handleAccept, handleReject,
+    findAvailableCourt, findAvailableSlot
+  } = useOwnerDashboard(notificationsHook)
 
   const stats = [
     { label: 'Ingresos del mes', value: '$1.240.000', icon: <CreditCard size={20} strokeWidth={2} />, delta: '+12% vs mes pasado', color: 'text-brand-turquoise' },

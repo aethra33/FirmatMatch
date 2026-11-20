@@ -6,12 +6,14 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { lastMinuteTurns, complexes, formatDateShort, currentUser } from '../data/mockData'
 import { useReservations } from '../hooks/useReservations'
+import { useNotifications } from '../hooks/useNotifications'
 import { toast } from 'sonner'
 
 export default function AvailableTurns() {
+  const notificationsHook = useNotifications()
   const [filter, setFilter] = useState('todos')
   const [openRequest, setOpenRequest] = useState(null)
-  const { requestReservation, getTurnAvailability } = useReservations()
+  const { requestReservation, getTurnAvailability } = useReservations(notificationsHook)
 
   const filtered = lastMinuteTurns.filter(
     (t) => filter === 'todos' || t.sport === filter,

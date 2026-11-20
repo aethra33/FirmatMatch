@@ -12,7 +12,7 @@ function loadReservations() {
   }
 }
 
-export function useReservations() {
+export function useReservations(notificationsHook = null) {
   const [requests, setRequests] = useState(loadReservations)
 
   useEffect(() => {
@@ -45,28 +45,56 @@ export function useReservations() {
       createdAt: new Date().toISOString(),
     }
     setRequests((prev) => [newRequest, ...prev])
+    
+    if (notificationsHook?.addNotification) {
+      notificationsHook.addNotification(
+        'Solicitud de reserva enviada',
+        `Tu reserva para ${turn.sport} en ${turn.complexName} a las ${turn.time} fue enviada.`,
+        'request',
+        '/turnos'
+      )
+    }
+    
     return newRequest.id
-  }, [])
+  }, [notificationsHook])
 
   const acceptReservation = useCallback((requestId, courtId, timeSlot) => {
     setRequests((prev) =>
-      prev.map((r) =>
-        r.id === requestId
-          ? { ...r, status: 'accepted', acceptedAt: new Date().toISOString(), courtId, timeSlot }
-          : r,
-      ),
+      prev.map((r) => {
+        if (r.id === requestId) {
+          if (notificationsHook?.addNotification) {
+            notificationsHook.addNotification(
+              'Reserva aceptada',
+              `Tu reserva para ${r.sport} en ${r.complexName} fue aceptada.`,
+              'confirmation',
+              '/jugador'
+            )
+          }
+          return { ...r, status: 'accepted', acceptedAt: new Date().toISOString(), courtId, timeSlot }
+        }
+        return r
+      }),
     )
-  }, [])
+  }, [notificationsHook])
 
   const rejectReservation = useCallback((requestId, reason = null) => {
     setRequests((prev) =>
-      prev.map((r) =>
-        r.id === requestId
-          ? { ...r, status: 'rejected', rejectedAt: new Date().toISOString(), rejectionReason: reason }
-          : r,
-      ),
+      prev.map((r) => {
+        if (r.id === requestId) {
+          if (notificationsHook?.addNotification) {
+            notificationsHook.addNotification(
+              'Reserva rechazada',
+              `Tu reserva para ${r.sport} en ${r.complexName} fue rechazada. ${reason || ''}`,
+              'change',
+              '/turnos'
+            )
+          }
+          return { ...r, status: 'rejected', rejectedAt: new Date().toISOString(), rejectionReason: reason }
+        }
+        return r
+      }),
     )
-  }, [])
+  }, [notificationsHook])
 
   const cancelReservation = useCallback((requestId) => {
     setRequests((prev) => prev.map((r) => (r.id === requestId ? { ...r, status: 'cancelled' } : r)))

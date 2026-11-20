@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { lastMinuteTurns, complexes } from '../data/mockData'
 
 const STORAGE_KEY = 'firmatmatch_turngrid'
@@ -6,7 +6,7 @@ const STORAGE_KEY = 'firmatmatch_turngrid'
 const COURTS = [
   { id: 'cancha-1', name: 'Cancha 1', sport: 'Fútbol 5' },
   { id: 'cancha-2', name: 'Cancha 2', sport: 'Fútbol 5' },
-  { id: 'cancha-3', name: 'Cancha 3', sport: 'Pádel' },
+  { id: 'cancha-3', name: 'Pádel', sport: 'Pádel' },
   { id: 'cancha-4', name: 'Cancha 4', sport: 'Pádel' },
 ]
 
@@ -98,6 +98,23 @@ export function useTurnGrid(reservations) {
     setGrid(createInitialGrid())
   }, [])
 
+  const findAvailableCourt = useCallback((date, time) => {
+    for (const court of COURTS) {
+      if (grid[court.id]?.[time] === 'libre') {
+        return court.id
+      }
+    }
+    return null
+  }, [grid])
+
+  const findAvailableSlot = useCallback((date) => {
+    for (const time of TIME_SLOTS) {
+      const courtId = findAvailableCourt(date, time)
+      if (courtId) return { courtId, time }
+    }
+    return null
+  }, [findAvailableCourt])
+
   const gridSnapshot = useMemo(() => ({ grid, COURTS, TIME_SLOTS, cellLabel, cellColor, cellTextColor }), [grid, cellLabel, cellColor, cellTextColor])
 
   return {
@@ -113,6 +130,8 @@ export function useTurnGrid(reservations) {
     releaseCell,
     getState,
     resetGrid,
+    findAvailableCourt,
+    findAvailableSlot,
     gridSnapshot,
   }
 }

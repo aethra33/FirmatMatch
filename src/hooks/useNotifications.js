@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { notifications as initialNotifications } from '../data/mockData'
 
 const STORAGE_KEY = 'firmatmatch_notifications'
@@ -29,5 +29,23 @@ export function useNotifications() {
 
   const unreadCount = list.filter((n) => !n.read).length
 
-  return { list, markAsRead, markAllAsRead, unreadCount }
+  const addNotification = useCallback((title, message, type = 'info', route = null) => {
+    const newNotification = {
+      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      title,
+      message,
+      time: 'ahora',
+      read: false,
+      route,
+    }
+    setList((prev) => [newNotification, ...prev])
+    return newNotification.id
+  }, [])
+
+  const removeNotification = useCallback((id) => {
+    setList((prev) => prev.filter((n) => n.id !== id))
+  }, [])
+
+  return { list, markAsRead, markAllAsRead, unreadCount, addNotification, removeNotification }
 }
