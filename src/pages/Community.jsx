@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft, MessageCircle, Users, ThumbsUp, Send } from 'lucide-react'
 import { Card, CardBody } from '../components/ui/Card'

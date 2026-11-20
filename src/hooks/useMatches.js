@@ -1,8 +1,23 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { matches as initialMatches, complexes, getComplexById } from '../data/mockData'
 
+const STORAGE_KEY = 'firmatmatch_matches'
+
+function loadMatches() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : [...initialMatches]
+  } catch {
+    return [...initialMatches]
+  }
+}
+
 export function useMatches() {
-  const [matchesList, setMatchesList] = useState([...initialMatches])
+  const [matchesList, setMatchesList] = useState(loadMatches)
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(matchesList))
+  }, [matchesList])
   const [filter, setFilter] = useState({
     sport: 'todos',
     date: 'todos',
